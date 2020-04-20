@@ -12,19 +12,36 @@ public class CS_Player : MonoBehaviour
     float JumpForce = 10;
     Vector3 Movement = Vector3.zero;
 
+    [SerializeField] 
+    float RotHorizontalSpeed = 1;
+    [SerializeField]
+    float RotVerticalSpeed = 1;
     //TODO: create variable for Horizontal rotation speed named RotHorizontalSpeed
     //TODO: create variable for Vertical rotation speed named RotVerticalSpeed
 
     void Start()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         CCRef = this.gameObject.GetComponent<CharacterController>();  
     }
 
     // Update is called once per frame
     void Update()
     {
-        //TODO: Add rotation on Y axis by using transform.Rotate() and reading Input.GetAxis("Mouse X") and multiply by RotHorizontalSpeed
-        //TODO: Add rotation on X axis to gameObject Camera by using transform.Rotate() and reading Input.GetAxis("Mouse Y") and multiply by RotVerticalSpeed
+        this.gameObject.transform.Rotate(Vector3.up * Input.GetAxis("Mouse X") * RotHorizontalSpeed);
+        
+        this.gameObject.transform.GetChild(0).Rotate(Vector3.right * Input.GetAxis("Mouse Y") * RotVerticalSpeed);
+
+        this.gameObject.transform.GetChild(0).localRotation = new Quaternion(
+            Mathf.Clamp(this.gameObject.transform.GetChild(0).localRotation.x, -0.5f, 0.5f),
+            this.gameObject.transform.GetChild(0).localRotation.y,
+            this.gameObject.transform.GetChild(0).localRotation.z,
+            this.gameObject.transform.GetChild(0).localRotation.w
+            );
+
+
+
         if (CCRef.isGrounded)
         {
             //Refactor: Place this code inside of function LandedMovement ()
