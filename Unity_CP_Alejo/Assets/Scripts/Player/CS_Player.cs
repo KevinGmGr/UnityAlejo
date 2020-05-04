@@ -10,15 +10,25 @@ public class CS_Player : MonoBehaviour
     float Speed = 10;
     [SerializeField] //SerializeField makes variables editable from Unity Editor
     float JumpForce = 10;
-    Vector3 Movement = Vector3.zero;
+    Vector3 Movement = Vector3.zero;                                                                    
 
     [SerializeField]
     float RotHorizontalSpeed = 1;
     [SerializeField]
     float RotVerticalSpeed = 1;
-    //TODO: create variable for Horizontal rotation speed named RotHorizontalSpeed
-    //TODO: create variable for Vertical rotation speed named RotVerticalSpeed
 
+
+    [SerializeField]
+    float LateraStrafe = 5f;
+    [SerializeField]
+    float FowardStrafe = 5f;
+    [SerializeField]
+    float BackwardStrafe = 2.5f;
+    [SerializeField]
+    float AirSpeed = 10f;
+
+
+    
     void Start()
     {
         Cursor.visible = false;
@@ -29,9 +39,60 @@ public class CS_Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        CameraRotation();
+
+        if (CCRef.isGrounded)
+        {
+            Movement = LandedMovement(); 
+            
+            if (Input.GetButton("Jump"))
+            {
+
+                Jump();
+                
+            }
+        }
+        else
+        {
+            Movement += Physics.gravity * Time.deltaTime;
+            Vector3 AirMovementCalc = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            AirMovementCalc.x *= AirSpeed * LateraStrafe;
+            if (AirMovementCalc.z > 0)
+            {
+                AirMovementCalc.z *= AirSpeed * FowardStrafe;         
+            }
+            else
+            {
+                AirMovementCalc.z *= AirSpeed * BackwardStrafe;
+            }
+
+            AirMovementCalc = this.gameObject.transform.TransformDirection(AirMovementCalc);
+            Movement += AirMovementCalc * Time.deltaTime ;
+        }
+
+
+        CCRef.Move(Movement * Time.deltaTime);
+    }
+
+    //TODO: Create function for Landed Movement -> Vector3 LandedMovement ()
+    Vector3 LandedMovement()
+    {
+        Vector3 LandedMovementCalc = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        LandedMovementCalc = this.gameObject.transform.TransformDirection(LandedMovementCalc);
+        LandedMovementCalc *= Speed;
+        return LandedMovementCalc; 
+    }
+    void Jump()
+    {
+        Movement.y += JumpForce;
+
+    }
+    void CameraRotation()
+    {
         this.gameObject.transform.Rotate(Vector3.up * Input.GetAxis("Mouse X") * RotHorizontalSpeed);
 
-        this.gameObject.transform.GetChild(0).Rotate(Vector3.right * Input.GetAxis("Mouse Y") * RotVerticalSpeed);
+        this.gameObject.transform.GetChild(0).Rotate(Vector3.right * Input.GetAxis("Mouse Y") * -1 *RotVerticalSpeed);
 
         this.gameObject.transform.GetChild(0).localRotation = new Quaternion(
             Mathf.Clamp(this.gameObject.transform.GetChild(0).localRotation.x, -0.5f, 0.5f),
@@ -40,37 +101,7 @@ public class CS_Player : MonoBehaviour
             this.gameObject.transform.GetChild(0).localRotation.w
             );
 
-
-
-        if (CCRef.isGrounded)
-        {
-            //Refactor: Place this code inside of function LandedMovement ()
-            //->
-            //Movement = LandedMovement()
-            Movement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-            Movement = this.gameObject.transform.TransformDirection(Movement);
-            Movement *= Speed;
-            //-<
-
-            if (Input.GetButton("Jump"))
-            {
-                //Place this code inside of function Jump ()
-                //->
-                Movement.y += JumpForce;
-                //-<
-            }
-        }
-        else
-        {
-            Movement += Physics.gravity * Time.deltaTime;
-        }
-
-
-        CCRef.Move(Movement * Time.deltaTime);
     }
-
-    //TODO: Create function for Landed Movement -> Vector3 LandedMovement ()
-
     //TODO: Create function of Jump 
 
 }
