@@ -56,26 +56,14 @@ public class CS_Player : MonoBehaviour
         else
         {
             Movement += Physics.gravity * Time.deltaTime;
-            Vector3 AirMovementCalc = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-            AirMovementCalc.x *= AirSpeed * LateraStrafe;
-            if (AirMovementCalc.z > 0)
-            {
-                AirMovementCalc.z *= AirSpeed * FowardStrafe;         
-            }
-            else
-            {
-                AirMovementCalc.z *= AirSpeed * BackwardStrafe;
-            }
-
-            AirMovementCalc = this.gameObject.transform.TransformDirection(AirMovementCalc);
-            Movement += AirMovementCalc * Time.deltaTime ;
+            Movement += AirMovement() * Time.deltaTime ;
         }
 
 
         CCRef.Move(Movement * Time.deltaTime);
     }
 
-    //TODO: Create function for Landed Movement -> Vector3 LandedMovement ()
+    
     Vector3 LandedMovement()
     {
         Vector3 LandedMovementCalc = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -88,6 +76,25 @@ public class CS_Player : MonoBehaviour
         Movement.y += JumpForce;
 
     }
+
+    Vector3 AirMovement()
+    {
+        Vector3 AirMovementCalc = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        AirMovementCalc.x *= AirSpeed * LateraStrafe;
+        if (AirMovementCalc.z > 0)
+        {
+            AirMovementCalc.z *= AirSpeed * FowardStrafe;
+        }
+        else
+        {
+            AirMovementCalc.z *= AirSpeed * BackwardStrafe;
+        }
+
+        AirMovementCalc = this.gameObject.transform.TransformDirection(AirMovementCalc);
+        return AirMovementCalc;
+
+    }
+
     void CameraRotation()
     {
         this.gameObject.transform.Rotate(Vector3.up * Input.GetAxis("Mouse X") * RotHorizontalSpeed);
