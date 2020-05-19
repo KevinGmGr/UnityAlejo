@@ -26,9 +26,11 @@ public class CS_Player : MonoBehaviour
     float BackwardStrafe = 2.5f;
     [SerializeField]
     float AirSpeed = 10f;
+    [SerializeField]
+    float LateralRayOffSet = 0.5f;
+    [SerializeField]
+    float LateralRayDistance = 1f;
 
-
-    
     void Start()
     {
         Cursor.visible = false;
@@ -55,8 +57,10 @@ public class CS_Player : MonoBehaviour
         }
         else
         {
+            RayCastWall();
             Movement += Physics.gravity * Time.deltaTime;
-            Movement += AirMovement() * Time.deltaTime ;
+            Movement += AirMovement() * Time.deltaTime;
+            Debug.Log(RayCastWall());
         }
 
 
@@ -109,6 +113,54 @@ public class CS_Player : MonoBehaviour
             );
 
     }
-    //TODO: Create function of Jump 
+   
+    bool RayCastWall()
+    {
+        float Raydistance = CCRef.radius + LateralRayDistance;
+        Vector3 RayOrigin = gameObject.transform.position + (Vector3.up * LateralRayOffSet);
+        Vector3 RayDireccion = gameObject.transform.TransformDirection(Vector3.right);
+        int RayHits = 0;
+        for (int i = 0; i < 2; i++)
+        {
+
+            if (i % 2 == 0)
+            {
+                 //RayDireccion = gameObject.transform.TransformDirection(Vector3.right * -1);
+            }
+            else
+            {
+                RayOrigin = gameObject.transform.position + (Vector3.up * LateralRayOffSet * -1);
+
+            }
+            #region RayCastDebug
+            if (Physics.Raycast(RayOrigin, RayDireccion, Raydistance))
+            {
+                Debug.Log("Raycast");
+                Debug.DrawRay(RayOrigin, RayDireccion * Raydistance, Color.green, 3);
+            }
+            else
+            {
+                Debug.DrawRay(RayOrigin, RayDireccion * Raydistance, Color.red, 3);
+            }
+            #endregion
+
+            if (Physics.Raycast(RayOrigin, RayDireccion, Raydistance))
+            {
+                RayHits++;
+            }
+            if (RayHits <= 2)
+            {
+                return true;
+            }
+
+            Debug.Log(RayDireccion);
+        } 
+        
+        return false;
+        
+
+    }
+
+
 
 }
